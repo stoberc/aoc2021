@@ -2,36 +2,22 @@ import pdb
 
 fname = "in6.txt"
 
-class Fish():
-    
-    def __init__(self, lifespan, current):
-        self.lifespan = lifespan
-        self.current = current
-        
-    def age(self):
-        self.current -= 1
-        if self.current == -1:
-            self.current = 6
-            return Fish(8, 8)
-        return None
-        
-    def __repr__(self):
-        return str(self.current)
-  
-fishes = [Fish(6, int(i)) for i in open(fname).read().split(',')]
+countdowns = [int(i) for i in open(fname).read().split(',')]
 
-def genstep():
-    global fishes
-    nextgen = []
-    for i in range(len(fishes)):
-        baby = fishes[i].age()
-        if baby:
-            nextgen.append(baby)
-    fishes += nextgen
+# keep track of HOW MANY fish have x time until spawn instead of individual fish
+fishcounts = [0] * 9
+for countdown in countdowns:
+    fishcounts[countdown] += 1
     
-for _ in range(80):
-    genstep()
+for i in range(256):
+    # advance a generation
+    spawn = fishcounts.pop(0) # all the fish at index 0 are ready to spawn
+    fishcounts.append(spawn) # their babies go at the end (8)
+    fishcounts[6] += spawn # they are reset to 6
     
-print(len(fishes))
-pdb.set_trace()
-    
+    if i == 79:
+        print("Part 1:", sum(fishcounts))     
+
+print("Part 2:", sum(fishcounts))
+
+#pdb.set_trace()
