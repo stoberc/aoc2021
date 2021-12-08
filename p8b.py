@@ -50,6 +50,7 @@ def process(line):
                 assignments[value] = i
                 lhs.remove(i)
                 break
+    assert None not in assignments # make sure everything worked ok
 
     # now translate the rhs and return
     return int(''.join([str(assignments.index(i)) for i in rhs]))
