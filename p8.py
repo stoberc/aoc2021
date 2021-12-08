@@ -33,12 +33,12 @@ def decrypt(msg, key):
 outvals = [] # valid translations of each line's right hand side (rhs)
 for i, line in enumerate(data):
     
-    #print(f"Processing line {i}/{len(data)}...")
+    print(f"Processing line {i}/{len(data)}...")
     
     rhs = line[10:] # will only be translated once - no backup needed
         
     for key in permutations('abcdefg'):
-        lhs = line[10:] # translate once per key
+        lhs = line[:10] # translate once per key
         lhs = tuple([''.join(sorted(decrypt(i, key))) for i in lhs]) # try the key
         if set(lhs) == set(DIGIT_LUT.keys()): # see if the key yielded the correct set of outputs
             # decrypt the right hand side using this key
