@@ -54,9 +54,8 @@ def process(line):
     # now translate the rhs and return
     return int(''.join([str(assignments.index(i)) for i in rhs]))
 
-    
-outvals = [process(line) for line in data]
-print("Part 2:", sum(outvals))
+
+print("Part 2:", sum(process(line) for line in data))
     
 #pdb.set_trace()
 
