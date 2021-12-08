@@ -58,6 +58,6 @@ def process(line):
 outvals = [process(line) for line in data]
 print("Part 2:", sum(outvals))
     
-pdb.set_trace()
+#pdb.set_trace()
 
     
