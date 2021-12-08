@@ -3,58 +3,55 @@ from itertools import permutations
 
 FNAME = "in8.txt"
 
-# translation back and forth between
-DIGIT_LUT = {0:'abcefg', 1:'cf', 2:'acdeg', 3:'acdfg', 4:'bcdf', 5:'abdfg', 6:'abdefg', 7:'acf', 8:'abcdefg', 9:'abcdfg'}
-REVERSE_DIGIT_LUT = {}
-for k, v in DIGIT_LUT.items():
-    REVERSE_DIGIT_LUT[v] = k
+# translation between segments and values
+DIGIT_LUT = {'abcefg':0, 'cf':1, 'acdeg':2, 'acdfg':3, 'bcdf':4, 'abdfg':5, 'abdefg':6, 'acf':7, 'abcdefg':8, 'abcdfg':9}
     
 def parse_line(line):
     return [tuple(sorted(i)) for i in line.replace('|','').split()]
-    
 data = [parse_line(i) for i in open(FNAME).readlines()]
-#data = [int(i) for i in open(FNAME).read().split(',')]
-#data = open(FNAME).read().split('\n\n')
 
+# Part 1 asks us to count how many of the right-hand-side input strings
+# have a length that makes them uniquely identifiable
 count = 0
 for line in data:
-    for code in line[10:]:
-        if len(code) in [2, 4, 3, 7]:
+    for i in line[10:]:
+        if len(i) in [2, 4, 3, 7]:
             count += 1
 print("Part 1:", count)
 
-def translate(msg, key):
+# substitution cipher
+def decrypt(msg, key):
     lut = {}
     for m, c in zip(key, 'abcdefg'):
         lut[m] = c
     return [lut[m] for m in msg]
 
-iaa = 0
-outs = []
-for line in data:
+# for each line, we find a mapping by brute force -
+# 7! = 5040 permuations is tractable, though slow
+# could certainly do something quite a bit more clever and faster
+# like deduction based on the unique mappings, but that's a lot of work! ;)
+outvals = [] # valid translations of each line's right hand side (rhs)
+for i, line in enumerate(data):
     
-    lineDone = False
+    #print(f"Processing line {i}/{len(data)}...")
     
-    lhsbk = line[:10]
-    rhs = line[10:]
+    lhsbk = line[:10] # backup the left hand side for reset each iteration
+    rhs = line[10:] # will only be translated once - no backup needed
         
     for key in permutations('abcdefg'):
-        #pdb.set_trace()
-        lhs = lhsbk[:]
-        lhs = tuple([''.join(sorted(translate(i, key))) for i in lhs])
-        if set(lhs) == set(DIGIT_LUT.values()):
-            print("HIT" + str(iaa))
-            iaa += 1
-            out = ''
-            #pdb.set_trace()
-            rhs = tuple([''.join(sorted(translate(i, key))) for i in rhs])
-            #pdb.set_trace()
+        lhs = lhsbk[:] # reset
+        lhs = tuple([''.join(sorted(decrypt(i, key))) for i in lhs]) # try the key
+        if set(lhs) == set(DIGIT_LUT.keys()): # see if the key yielded the correct set of outputs
+            # decrypt the right hand side using this key
+            rhs = tuple([''.join(sorted(decrypt(i, key))) for i in rhs])
+            out = '' # why do math when we have string manipulation?! ;)
             for i in rhs:
-                out += str(REVERSE_DIGIT_LUT[i])
-            outs.append(int(out))
+                out += str(DIGIT_LUT[i])
+            outvals.append(int(out))
+            break
         
-print("Part 2:", sum(outs))
+print("Part 2:", sum(outvals))
     
+#pdb.set_trace()
 
-pdb.set_trace()
     
