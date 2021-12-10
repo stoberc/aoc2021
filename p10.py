@@ -1,7 +1,6 @@
 import pdb
 
 FNAME = "in10.txt"
-
 data = open(FNAME).read().splitlines()
 
 PENALTIES = {')':3, ']':57, '}':1197, '>':25137}
@@ -17,11 +16,10 @@ def corruption_score(line):
     for i in line:
         if i in BEGINNINGS.values():
             stack.append(i)
+        elif stack[-1] != BEGINNINGS[i]:
+            return PENALTIES[i]
         else:
-            if stack[-1] != BEGINNINGS[i]:
-                return PENALTIES[i]
-            else:
-                stack.pop(-1)
+            stack.pop(-1)
     return 0
 
 scores = [corruption_score(line) for line in data]
