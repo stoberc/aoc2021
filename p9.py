@@ -17,7 +17,7 @@ risk = 0
 # -1 signifies not part of any basin (height 9)
 # 0 ... n signifies the basinID of that location
 basinmap = [[-2] * width for _ in range(height)] 
-basinID = 0 # next available basinID
+basinID = 0 # next available basinID for newly discovered low points
 for x in range(width):
     for y in range(height):
         neighbors = []
