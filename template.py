@@ -9,8 +9,8 @@ FNAME = "in1.txt"
 def parse_line(line):
     return int(line)
     
-data = [parse_line(i) for i in open(FNAME).readlines()]
-#data = [int(i) for i in open(FNAME).read().split(',')]
+data = [parse_line(line) for line in open(FNAME).readlines()]
+#data = [int(line) for line in open(FNAME).read().split(',')]
 #data = open(FNAME).read().split('\n\n')
 
 
