@@ -1,7 +1,7 @@
 import pdb
 from collections import defaultdict
 
-FNAME = "in1.txt"
+FNAME = "in14.txt"
 
 #import maputil
 #map = maputil.load(FNAME)
