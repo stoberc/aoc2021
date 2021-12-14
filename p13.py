@@ -1,4 +1,4 @@
-#import pdb
+import pdb
 
 FNAME = "in13.txt"
 
@@ -30,7 +30,7 @@ print("Part 1:", len(coords))
 # now process the rest of the folds
 for fold in folds[1:]:
     coords = process_fold(coords, fold)
-
+    
 # now display the resultant points
 WIDTH = max(x for x, y in coords)
 HEIGHT = max(y for x, y in coords)
