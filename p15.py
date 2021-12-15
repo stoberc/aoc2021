@@ -1,4 +1,4 @@
-import pdb
+#import pdb
 from collections import defaultdict
 
 FNAME = "in15.txt"
@@ -69,5 +69,5 @@ for _ in range(height * 4):
 
 print("Part 2:", calculate_min_risk(risk_grid))
 
-pdb.set_trace()
+#pdb.set_trace()
     
