@@ -1,10 +1,11 @@
-#import pdb
+import pdb
 from collections import defaultdict
 
 FNAME = "in14.txt"
 
 data = open(FNAME).read().split('\n\n')
-base = data[0].strip()
+pdb.set_trace()
+base = data[0]
 product = {}
 for line in data[1].splitlines():
     a, b = line.split(" -> ")
@@ -15,14 +16,11 @@ for line in data[1].splitlines():
 def step(compound):
     out = ''
     for i in range(len(compound) - 1):
-        snip = compound[i:i+2]
-        out += compound[i]
-        if snip in product:
-            out += product[snip]
+        out += compound[i] + product[compound[i:i+2]]
     out += compound[-1]
     return out
     
-# the original way - obsoleced but maintained for reference
+# the original way for Part 1 - obsoleced but maintained for reference
 #compound = base
 #for _ in range(10):
 #    compound = step(compound)
