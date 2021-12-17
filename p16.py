@@ -12,7 +12,7 @@ class Packet:
         self.version = int(sequence[:3], 2)
         self.typeID = int(sequence[3:6], 2)
         self.subpackets = []
-        if self.typeID == 4:
+        if self.typeID == 4: # literal value
             i = 6
             value = ''
             while sequence[i] == '1':
@@ -21,12 +21,12 @@ class Packet:
             assert sequence[i] == '0'
             value += sequence[i+1:i+5]
             i += 5
-            self.value = int(value, 2) # literal value
+            self.value = int(value, 2) 
             self.bitlength = i # total number of bits in this packet
             self.residual = sequence[i:] # bits left over - future packets
         else:
             self.lengthtypeID = sequence[6]
-            if self.lengthtypeID == '0':
+            if self.lengthtypeID == '0': # the following n bits are some subpackets
                 self.payload_length = int(sequence[7:22], 2)
                 self.bitlength = 22 + self.payload_length
                 payloadbits = sequence[22:]
@@ -35,11 +35,12 @@ class Packet:
                     subpacket = Packet(payloadbits)
                     self.subpackets.append(subpacket)
                     payloadbits = subpacket.residual
+                    del subpacket.residual # once we've reclaimed this to feed to the next digest, no use storing
                     bitsremaining -= subpacket.bitlength
                 assert bitsremaining == 0
                 self.residual = payloadbits
                     
-            else:
+            else: # the following bits represent n subpackets
                 assert self.lengthtypeID == '1'
                 self.nsubpackets= int(sequence[7:18], 2)
                 self.bitlength = 18
@@ -49,7 +50,9 @@ class Packet:
                     self.subpackets.append(subpacket)
                     self.bitlength += subpacket.bitlength
                     payloadbits = subpacket.residual
+                    del subpacket.residual
                 self.residual = payloadbits
+                
             if self.typeID == 0: # sum
                 self.value = sum(sp.value for sp in self.subpackets)
             elif self.typeID == 1: # product
@@ -63,17 +66,17 @@ class Packet:
             elif self.typeID == 6: # less than
                 self.value = 1 if self.subpackets[0].value < self.subpackets[1].value else 0
             else:
-                assert self.typeID == 7
+                assert self.typeID == 7 # equals
                 self.value = 1 if self.subpackets[0].value == self.subpackets[1].value else 0
                          
-def versionsum(p):
-    total = p.version
-    for sp in p.subpackets:
-        total += versionsum(sp)
-    return total
+    def versionsum(self):
+        total = self.version
+        for sp in self.subpackets:
+            total += sp.versionsum()
+        return total
         
 p = Packet(sequence)
-print("Part 1:", versionsum(p))
+print("Part 1:", p.versionsum())
 print("Part 2:", p.value)
 
 pdb.set_trace()
