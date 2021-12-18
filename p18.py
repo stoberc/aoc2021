@@ -165,6 +165,7 @@ mags = []
 for i in range(len(vals)):
     for j in range(1, len(vals)):
         mags.append((vals[i] + vals[j]).magnitude())
+        mags.append((vals[j] + vals[i]).magnitude())
 print("Part 2:", max(mags))
 
 #pdb.set_trace()

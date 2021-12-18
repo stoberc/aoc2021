@@ -3,7 +3,7 @@ from collections import defaultdict
 from aoc_utils import *
 import re
 
-FNAME = "in18.txt"
+FNAME = "in19.txt"
 
 #import maputil
 #map = maputil.load(FNAME)
