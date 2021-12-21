@@ -55,5 +55,5 @@ def numberofwins(score0, score1, location0, location1, currentplayer):
         
 print("Part 2:", max(numberofwins(0, 0, *PUZZLE, 0)))  
 
-pdb.set_trace()
+#pdb.set_trace()
     
