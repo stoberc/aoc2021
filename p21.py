@@ -34,39 +34,26 @@ memo = {}
 def numberofwins(score0, score1, location0, location1, currentplayer):
     if (score0, score1, location0, location1, currentplayer) in memo:
         return memo[(score0, score1, location0, location1, currentplayer)]
-    location0bk = location0
-    location1bk = location1
-    score0bk = score0
-    score1bk = score1
-    wins0 = 0
-    wins1 = 0
+    locations = locationsbk = [location0, location1]
+    scores = scoresbk = [score0, score1]
+    wins = [0, 0]
     for r1 in [1, 2, 3]:
         for r2 in [1, 2, 3]:
             for r3 in [1, 2, 3]:
-                location0, location1, score0, score1 = location0bk, location1bk, score0bk, score1bk
-                if currentplayer == 0:
-                    location0 = (location0 + r1 + r2 + r3 - 1) % 10 + 1
-                    score0 += location0
-                    if score0 >= 21:
-                        wins0 += 1
-                    else:
-                        a, b = numberofwins(score0, score1, location0, location1, 1)
-                        wins0 += a
-                        wins1 += b
+                locations = locationsbk[:]
+                scores = scoresbk[:]
+                locations[currentplayer] = (locations[currentplayer] + r1 + r2 + r3 - 1) % 10 + 1
+                scores[currentplayer] += locations[currentplayer]
+                if scores[currentplayer] >= 21:
+                    wins[currentplayer] += 1
                 else:
-                    location1 = (location1 + r1 + r2 + r3 - 1) % 10 + 1
-                    score1 += location1
-                    if score1 >= 21:
-                        wins1 += 1
-                    else:
-                        a, b = numberofwins(score0, score1, location0, location1, 0)
-                        wins0 += a
-                        wins1 += b     
-    location0, location1, score0, score1 = location0bk, location1bk, score0bk, score1bk
-    memo[(score0, score1, location0, location1, currentplayer)] = (wins0, wins1)
-    return (wins0, wins1)
+                    a, b = numberofwins(*scores, *locations, 1 - currentplayer)
+                    wins[0] += a
+                    wins[1] += b                  
+    memo[(*scoresbk, *locationsbk, currentplayer)] = wins
+    return wins
         
-print("Part 2:", max(numberofwins(0, 0, PUZZLE[0], PUZZLE[1], 0)))  
+print("Part 2:", max(numberofwins(0, 0, *PUZZLE, 0)))  
 
 pdb.set_trace()
     
