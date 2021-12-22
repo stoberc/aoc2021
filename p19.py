@@ -20,6 +20,12 @@ class Scan:
                 row_trace.append((i - x, j - y, k - z))
             self.traces.append(row_trace)
         self.tracesets = [set(coordtrace) for coordtrace in self.traces]
+        
+        self.tracehashes = []
+        for row in self.traces:
+            for x, y, z in row:
+                self.tracehashes.append(abs(x) + abs(y) + abs(z))
+        self.tracehashes = set(self.tracehashes)
          
     def recenter(self, x, y, z):
         i, j, k = self.center
@@ -37,11 +43,13 @@ class Scan:
         self.traces = [[reassign_orientation(*coord, rotation) for coord in row] for row in self.traces]
         self.tracesets = [set(coordtrace) for coordtrace in self.traces]
         
+    def is_probably_consistent(self, other, threshold = 12):
+        return len(self.tracehashes.intersection(other.tracehashes)) >= threshold
+        
     def is_consistent(self, other, threshold = 12):
         for i in self.tracesets:
             for j in other.tracesets:
                 if len(i.intersection(j)) >= threshold: # TODO - check boundaries, overlap, etc.
-                    #assert other.is_consistent(self) # how to check w/o recursion?
                     return True
         return False
         
@@ -53,12 +61,14 @@ class Scan:
                     x, y, z = other.coords[j]
                     dx, dy, dz = a - x, b - y, c - z
                     x, y, z = other.center
-                    #pdb.set_trace()
                     other.recenter(x + dx, y + dy, z + dz)
-                    assert len(set(self.coords).intersection(set(other.coords))) >= threshold
-                    # TODO - add checks that there's nothing spurious in the overlapping region - I suspect the input is designed so that this is impossible, though
-                    return other
-        pdb.set_trace()
+                    #assert len(set(self.coords).intersection(set(other.coords))) >= threshold
+                    # TODO - add checks that there's nothing spurious in the overlapping region
+                    # I suspect the input is designed so that this is impossible, though.
+                    # I.e. IF 12 beacons have a valid and consistent patial relationship,
+                    # there won't be a 13th that is inconsistent in the overlapping region that
+                    # invalidates the relationship.
+                    return
         raise ValueError(f"scans {self.scanID} and {other.scanID} could not be aligned")
                     
     def manhattan_distance(self, other):
@@ -146,19 +156,12 @@ def reassign_orientation(x, y, z, rotation, immutable = True):
 # 3. At that point, we just repeat the process finding more and more scanners that overlap, until every single
 #    scanner data set has been processed in this way.
 
-
 scans = [Scan(chunk) for chunk in scanner_chunks]
-
-#scans[1].rotate_around_center(rotation_matrices[2])
-#print(scans[0].is_consistent(scans[1]))
-#scans[1] = scans[0].align(scans[1])
-
-#pdb.set_trace()
 
 aligned = [scans[0]] # we'll arbitrarily use the first scan as our reference frame
 unaligned = scans[1:]
 
-already_compared = []
+already_compared = {}
 while unaligned:
     updated = False
     for unaligned_scan in unaligned: # TODO - more efficient to not reset back to start of unaligned after each new addition
@@ -166,8 +169,10 @@ while unaligned:
         for aligned_scan in aligned:
             if (aligned_scan.scanID, unaligned_scan.scanID) in already_compared:
                 continue
-            already_compared.append((aligned_scan.scanID, unaligned_scan.scanID))
-            already_compared.append((unaligned_scan.scanID, aligned_scan.scanID))
+            already_compared[(aligned_scan.scanID, unaligned_scan.scanID)] = True
+            already_compared[(unaligned_scan.scanID, aligned_scan.scanID)] = True
+            if not aligned_scan.is_probably_consistent(unaligned_scan):
+                continue
             for rotation in rotation_matrices:
                 unaligned_scan = copy.deepcopy(unaligned_scan_bk)
                 unaligned_scan.rotate_around_center(rotation)
